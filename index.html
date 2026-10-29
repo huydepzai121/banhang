@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="NEXUS - Hệ thống bán lẻ điện thoại flagship chính hãng hàng đầu Việt Nam. iPhone, Samsung Galaxy, Xiaomi Leica, Gaming Phone với giá ưu đãi và bảo hành 1 đổi 1." />
+  <title>NEXUS | Flagship Smartphones &amp; Công Nghệ Di Động Đỉnh Cao</title>
+
+  <!-- Google Fonts: Archivo (Display) + Be Vietnam Pro (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- 1. Announcement Bar -->
+  <aside class="announcement-bar" aria-label="Thông báo ưu đãi">
+    <div class="container announcement-content">
+      <div class="announcement-left">
+        <div class="announcement-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+          <span>Giao siêu tốc 2 giờ nội thành Hà Nội &amp; TP.HCM</span>
+        </div>
+        <div class="announcement-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Thu cũ đổi mới trợ giá đến 3.000.000₫</span>
+        </div>
+      </div>
+      <div class="announcement-item">
+        <span>Hotline tư vấn:</span>
+        <a href="tel:18006868" class="announcement-hotline tabular">1800 6868 (Miễn phí)</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 2. Sticky Site Header -->
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <!-- Logo -->
+      <a href="#" class="brand-logo" aria-label="NEXUS Trang chủ">
+        <div class="brand-symbol">N</div>
+        <div class="brand-text">
+          <span class="brand-name">NEXUS</span>
+          <span class="brand-tagline">Flagship Mobile</span>
+        </div>
+      </a>
+
+      <!-- Search Bar with Live Filter -->
+      <div class="search-container" role="search">
+        <div class="search-input-wrap">
+          <svg class="search-icon-left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="search"
+            id="search-input"
+            class="search-input"
+            placeholder="Tìm theo tên máy (iPhone 16, Galaxy S25, Xiaomi...)"
+            aria-label="Tìm kiếm điện thoại"
+          />
+          <button type="button" id="search-clear" class="search-clear-btn" aria-label="Xóa tìm kiếm">✕</button>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="nav-menu" aria-label="Thanh điều hướng chính">
+        <a href="#hero" class="nav-link active">Nổi Bật</a>
+        <a href="#flash-sale" class="nav-link">Flash Sale</a>
+        <a href="#catalog" class="nav-link">Sản Phẩm</a>
+        <a href="#perks" class="nav-link">Đặc Quyền</a>
+        <a href="#reviews" class="nav-link">Đánh Giá</a>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <!-- Wishlist -->
+        <a href="#catalog" class="btn-icon" aria-label="Danh sách yêu thích">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span class="badge-count tabular" id="wishlist-count">0</span>
+        </a>
+
+        <!-- Cart Trigger -->
+        <button type="button" class="btn-icon" id="open-cart-btn" aria-label="Xem giỏ hàng">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="badge-count tabular" id="cart-count">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. Split-Screen Hero Section -->
+  <section class="hero-section" id="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-badge-row">
+          <span class="hero-tag">
+            <span class="hero-tag-pulse"></span>
+            Siêu phẩm 2026
+          </span>
+          <span class="badge badge-sale">Giảm đến 4.500.000₫</span>
+        </div>
+
+        <h1 class="hero-title">
+          Kỷ nguyên điện thoại <span>Titan &amp; AI</span> đỉnh cao
+        </h1>
+
+        <p class="hero-desc">
+          Trải nghiệm sức mạnh xử lý 3nm vượt bậc, hệ thống thấu kính quang học chuẩn điện ảnh và quyền năng trí tuệ nhân tạo toàn diện ngay trong tầm tay.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#catalog" class="btn btn-primary">
+            Khám Phá Bộ Sưu Tập
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+          <button type="button" class="btn btn-secondary" data-action="quickview" data-id="nx-ip16pm">
+            Xem iPhone 16 Pro Max
+          </button>
+        </div>
+
+        <div class="hero-specs-row">
+          <div class="hero-spec-item">
+            <span class="spec-val tabular">100%</span>
+            <span class="spec-lbl">Chính Hãng VN/A</span>
+          </div>
+          <div class="hero-spec-item">
+            <span class="spec-val tabular">1 ĐỔI 1</span>
+            <span class="spec-lbl">30 ngày miễn phí</span>
+          </div>
+          <div class="hero-spec-item">
+            <span class="spec-val tabular">0% LÃI SUẤT</span>
+            <span class="spec-lbl">Trả góp duyệt 5 phút</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Visual Component -->
+      <div class="hero-visual-card">
+        <span class="hero-floating-pill floating-pill-top">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          Chip 3nm A18 Pro &amp; 8 Elite
+        </span>
+
+        <img src="assets/phone-iphone16pro.svg" alt="iPhone 16 Pro Max Titan Sa Mạc" class="hero-phone-image" />
+
+        <span class="hero-floating-pill floating-pill-bottom">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 14 14"></polyline>
+          </svg>
+          Bảo hành chính hãng 24 tháng
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Perks / Trust Section -->
+  <section class="perks-section" id="perks">
+    <div class="container perks-grid">
+      <div class="perk-item">
+        <div class="perk-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+        </div>
+        <div class="perk-info">
+          <h4>Giao Hàng Miễn Phí</h4>
+          <p>Nhận máy trong 2 giờ nội thành, kiểm tra hàng trước khi thanh toán</p>
+        </div>
+      </div>
+
+      <div class="perk-item">
+        <div class="perk-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <div class="perk-info">
+          <h4>Bảo Hành 1 Đổi 1</h4>
+          <p>Lỗi từ nhà sản xuất đổi mới ngay trong 30 ngày, bảo hành 12 - 24 tháng</p>
+        </div>
+      </div>
+
+      <div class="perk-item">
+        <div class="perk-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+        </div>
+        <div class="perk-info">
+          <h4>Trả Góp 0% Lãi Suất</h4>
+          <p>Hỗ trợ qua thẻ tín dụng và công ty tài chính, không giữ giấy tờ</p>
+        </div>
+      </div>
+
+      <div class="perk-item">
+        <div class="perk-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+        </div>
+        <div class="perk-info">
+          <h4>Thu Cũ Đổi Mới</h4>
+          <p>Định giá máy cũ nhanh chóng qua AI, trợ giá lên đời đến 3 triệu đồng</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Flash Sale with Live Countdown -->
+  <section class="flash-sale-section" id="flash-sale">
+    <div class="container">
+      <div class="section-head-sale">
+        <div class="sale-title-group">
+          <h2 class="sale-title">
+            <span class="sale-title-icon">⚡</span>
+            FLASH SALE GIÁ SỐC
+          </h2>
+          <span class="badge badge-sale">SỐ LƯỢNG CÓ HẠN</span>
+        </div>
+
+        <!-- Live Countdown -->
+        <div class="countdown-clock" aria-label="Thời gian còn lại của Flash Sale">
+          <span class="countdown-box tabular" id="cd-hours">04</span>
+          <span class="countdown-colon">:</span>
+          <span class="countdown-box tabular" id="cd-mins">38</span>
+          <span class="countdown-colon">:</span>
+          <span class="countdown-box tabular" id="cd-secs">19</span>
+        </div>
+      </div>
+
+      <div class="product-grid" id="flash-sale-grid">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Ecosystem Showcase Banner -->
+  <section class="container">
+    <div class="showcase-banner">
+      <div class="showcase-banner-grid">
+        <div class="banner-content">
+          <span class="badge badge-tag" style="margin-bottom: 12px;">ĐỈNH CAO THIẾT KẾ</span>
+          <h3>Trải nghiệm <span>Sức Mạnh AI</span> Trong Từng Cú Chạm</h3>
+          <p>
+            Tự động chỉnh sửa ảnh xóa vật thể thông minh, dịch thuật thời gian thực hai chiều và tóm tắt cuộc họp tức thì với bộ vi xử lý NPU thế hệ mới.
+          </p>
+          <div class="banner-bullets">
+            <div class="bullet-item">
+              <span class="bullet-icon">✓</span>
+              <span>Camera cảm biến 1 inch &amp; Zoom quang học kính tiềm vọng</span>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-icon">✓</span>
+              <span>Khung Titan hàng không siêu bền, siêu nhẹ, tản nhiệt buồng hơi lớn</span>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-icon">✓</span>
+              <span>Pin công nghệ Silicon-Carbon dung lượng cao, sạc đầy trong 25 phút</span>
+            </div>
+          </div>
+          <a href="#catalog" class="btn btn-primary">Xem Chi Tiết Dòng Máy AI</a>
+        </div>
+        <div class="banner-img-wrap">
+          <img src="assets/phone-showcase.svg" alt="Bộ đôi điện thoại Galaxy và iPhone" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Main Product Catalog & Filters -->
+  <section class="catalog-section" id="catalog">
+    <div class="container">
+      <div class="section-header-catalog">
+        <div class="section-header-left">
+          <h2>Danh Mục Flagship</h2>
+          <p>Lựa chọn dòng máy phù hợp theo nhu cầu và thương hiệu ưa thích</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs" role="tablist">
+          <button type="button" class="filter-btn active" data-category="all">Tất Cả Máy</button>
+          <button type="button" class="filter-btn" data-category="iphone">Apple iPhone</button>
+          <button type="button" class="filter-btn" data-category="samsung">Samsung Galaxy</button>
+          <button type="button" class="filter-btn" data-category="xiaomi">Xiaomi Leica</button>
+          <button type="button" class="filter-btn" data-category="oppo">OPPO Find</button>
+          <button type="button" class="filter-btn" data-category="gaming">Gaming ROG</button>
+        </div>
+      </div>
+
+      <!-- Catalog Grid -->
+      <div class="product-grid" id="catalog-grid">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div id="catalog-empty" style="display: none; text-align: center; padding: 48px 0; color: var(--text-muted);">
+        <p>Không tìm thấy mẫu điện thoại phù hợp với tìm kiếm của bạn.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Real Customer Reviews & Feedback -->
+  <section class="reviews-section" id="reviews">
+    <div class="container">
+      <div style="margin-bottom: 32px; text-align: center;">
+        <span class="badge badge-tag" style="margin-bottom: 8px;">TRẢI NGHIỆM KHÁCH HÀNG</span>
+        <h2>Hơn 12.000+ Khách Hàng Đã Tin Chọn NEXUS</h2>
+        <p style="color: var(--text-secondary); margin-top: 6px;">Đánh giá thực tế từ người dùng đã mua máy và sử dụng dịch vụ</p>
+      </div>
+
+      <div class="reviews-grid">
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">
+            "Máy iPhone 16 Pro Max màu Titan Sa Mạc cầm siêu đầm tay mà nhẹ hơn đời 14 Pro Max rất nhiều. Đặt hàng lúc 9h sáng thì 10h30 đã có nhân viên mang máy tới tận nhà bóc seal kích hoạt. Dịch vụ tuyệt vời!"
+          </p>
+          <div class="reviewer-meta">
+            <div class="reviewer-avatar">ĐA</div>
+            <div>
+              <div class="reviewer-name">Đặng Tuấn Anh</div>
+              <div class="reviewer-product">Đã mua iPhone 16 Pro Max 256GB</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">
+            "S25 Ultra năm nay các góc bo cong cầm không bị cấn tay như đời trước nữa. Camera 200MP chụp đêm sáng rõ, zoom đi xem concert ca nhạc nét từng sợi tóc. Có hỗ trợ quẹt thẻ trả góp 0% cực nhanh."
+          </p>
+          <div class="reviewer-meta">
+            <div class="reviewer-avatar">MH</div>
+            <div>
+              <div class="reviewer-name">Mai Thu Hà</div>
+              <div class="reviewer-product">Đã mua Galaxy S25 Ultra 512GB</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-text">
+            "Chiếc Xiaomi 15 Ultra chụp màu Leica nhìn như máy ảnh cơ chuyên nghiệp, cảm biến 1 inch xóa phông tự nhiên không bị giả. Nhân viên hỗ trợ dán cường lực và tặng ốp lưng rất chu đáo."
+          </p>
+          <div class="reviewer-meta">
+            <div class="reviewer-avatar">HQ</div>
+            <div>
+              <div class="reviewer-name">Hoàng Quốc Quân</div>
+              <div class="reviewer-product">Đã mua Xiaomi 15 Ultra 5G</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Modern E-commerce Footer -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <!-- Col 1: Brand & Contact -->
+        <div class="footer-col footer-col-brand">
+          <div class="brand-logo">
+            <div class="brand-symbol">N</div>
+            <div class="brand-text">
+              <span class="brand-name">NEXUS</span>
+              <span class="brand-tagline">Flagship Mobile</span>
+            </div>
+          </div>
+          <p>
+            Hệ thống showroom phân phối smartphone công nghệ cao chính hãng. Cam kết chất lượng, bảo hành chuẩn chỉ và dịch vụ chăm sóc khách hàng hàng đầu.
+          </p>
+          <div class="footer-socials">
+            <a href="#" class="social-link" aria-label="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            </a>
+            <a href="#" class="social-link" aria-label="YouTube">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg>
+            </a>
+            <a href="#" class="social-link" aria-label="TikTok">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Col 2: Categories -->
+        <div class="footer-col">
+          <h4>Sản Phẩm</h4>
+          <div class="footer-links">
+            <a href="#catalog" class="footer-link">iPhone 16 Series</a>
+            <a href="#catalog" class="footer-link">Samsung Galaxy S25 Series</a>
+            <a href="#catalog" class="footer-link">Galaxy Z Fold6 / Flip6</a>
+            <a href="#catalog" class="footer-link">Xiaomi Leica Flagship</a>
+            <a href="#catalog" class="footer-link">ASUS ROG Phone Gaming</a>
+          </div>
+        </div>
+
+        <!-- Col 3: Policies -->
+        <div class="footer-col">
+          <h4>Chính Sách</h4>
+          <div class="footer-links">
+            <a href="#" class="footer-link">Chính sách bảo hành 1 đổi 1</a>
+            <a href="#" class="footer-link">Hướng dẫn mua trả góp 0%</a>
+            <a href="#" class="footer-link">Quy trình thu cũ đổi mới</a>
+            <a href="#" class="footer-link">Chính sách giao hàng siêu tốc</a>
+            <a href="#" class="footer-link">Bảo mật thông tin khách hàng</a>
+          </div>
+        </div>
+
+        <!-- Col 4: Newsletter -->
+        <div class="footer-col">
+          <h4>Nhận Voucher 500k</h4>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">
+            Đăng ký để nhận thông báo giảm giá Flash Sale và voucher áp dụng ngay:
+          </p>
+          <form id="newsletter-form" class="newsletter-form">
+            <input type="email" class="newsletter-input" placeholder="Nhập email của bạn..." required aria-label="Email nhận khuyến mãi" />
+            <button type="submit" class="btn btn-primary" style="min-height: 42px; padding: 0 16px;">Gửi</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="footer-bottom">
+        <div>&copy; 2026 NEXUS MOBILE VIETNAM. Tất cả các quyền được bảo lưu.</div>
+        <div>Showroom chính: 128 Thái Hà, Đống Đa, Hà Nội | Hotline: 1800 6868</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 10. Slide-Over Cart Drawer -->
+  <div class="cart-backdrop" id="cart-backdrop"></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-label="Giỏ hàng của bạn">
+    <div class="cart-header">
+      <h3>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        Giỏ Hàng <span id="drawer-cart-count" class="tabular">(0)</span>
+      </h3>
+      <button type="button" class="btn-icon" id="close-cart-btn" aria-label="Đóng giỏ hàng">✕</button>
+    </div>
+
+    <div class="cart-body" id="cart-items-container">
+      <!-- Items dynamically populated via app.js -->
+    </div>
+
+    <div class="cart-footer">
+      <div class="cart-subtotal-row">
+        <span class="cart-subtotal-label">Tổng cộng tạm tính:</span>
+        <span class="cart-subtotal-val tabular" id="cart-subtotal">0₫</span>
+      </div>
+      <button type="button" class="btn btn-primary" style="width: 100%;" data-action="checkout">
+        Tiến Hành Đặt Hàng Ngay
+      </button>
+    </div>
+  </aside>
+
+  <!-- 11. Quick View Modal -->
+  <div class="modal-backdrop" id="quickview-modal" role="dialog" aria-modal="true" aria-label="Chi tiết sản phẩm">
+    <div class="modal-card">
+      <button type="button" class="modal-close-btn" id="close-modal-btn" aria-label="Đóng xem nhanh">✕</button>
+      <div id="quickview-content">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Toast Notification Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- JavaScript -->
+  <script src="js/app.js"></script>
+</body>
+</html>

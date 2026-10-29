@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 400" fill="none">
+  <defs>
+    <linearGradient id="titanBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D4C5B4"/>
+      <stop offset="50%" stop-color="#9E8C7A"/>
+      <stop offset="100%" stop-color="#6A5A4B"/>
+    </linearGradient>
+    <linearGradient id="screenGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1A1512"/>
+      <stop offset="45%" stop-color="#8A6240"/>
+      <stop offset="70%" stop-color="#D49B6A"/>
+      <stop offset="100%" stop-color="#0E0D0C"/>
+    </linearGradient>
+    <linearGradient id="lensMetal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E6D7C3"/>
+      <stop offset="100%" stop-color="#5C4D3C"/>
+    </linearGradient>
+  </defs>
+  <!-- Back Phone (Desert Titanium Rear) -->
+  <rect x="42" y="30" width="160" height="330" rx="28" fill="url(#titanBody)" stroke="#EDE0D1" stroke-width="2"/>
+  <!-- Camera Island -->
+  <rect x="54" y="42" width="76" height="78" rx="18" fill="#B5A391" stroke="#E6D7C3" stroke-width="1.5"/>
+  <!-- 3 Camera Lenses -->
+  <circle cx="75" cy="63" r="15" fill="#14181F" stroke="url(#lensMetal)" stroke-width="3"/>
+  <circle cx="75" cy="63" r="6" fill="#1F2937"/>
+  <circle cx="75" cy="99" r="15" fill="#14181F" stroke="url(#lensMetal)" stroke-width="3"/>
+  <circle cx="75" cy="99" r="6" fill="#1F2937"/>
+  <circle cx="109" cy="81" r="15" fill="#14181F" stroke="url(#lensMetal)" stroke-width="3"/>
+  <circle cx="109" cy="81" r="6" fill="#1F2937"/>
+  <!-- LiDAR & Flash -->
+  <circle cx="109" cy="56" r="5" fill="#FFFBEB"/>
+  <circle cx="109" cy="105" r="5.5" fill="#27272A"/>
+
+  <!-- Front Phone (OLED Display) -->
+  <rect x="116" y="45" width="162" height="330" rx="28" fill="#0B0D10" stroke="#C8B7A6" stroke-width="3"/>
+  <rect x="122" y="51" width="150" height="318" rx="23" fill="url(#screenGlow)"/>
+  <!-- Dynamic Island -->
+  <rect x="172" y="60" width="50" height="14" rx="7" fill="#050505"/>
+  <circle cx="213" cy="67" r="3" fill="#111827"/>
+  <!-- Subtle Wallpaper Waves -->
+  <path d="M122 220 Q197 160 272 230 L272 369 L122 369 Z" fill="rgba(0, 229, 255, 0.14)"/>
+</svg>

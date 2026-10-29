@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Usage Dashboard</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #1d2330; --muted: #6b7280; --grid: #e5e7eb;
+    --c1: #2a6fdb; --c2: #e07a1f; --c3: #1f9d74; --c4: #b44fc4; --ok: #1f9d74; --bad: #d64545; --warn: #d9a400;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1218; --card: #181c25; --text: #e6e8ee; --muted: #9aa3b2; --grid: #2a303c;
+      --c1: #5b93f0; --c2: #f0954a; --c3: #3cc196; --c4: #cf7ddc; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 20px 28px 8px; flex-wrap: wrap; gap: 12px; }
+  h1 { font-size: 20px; margin: 0; }
+  header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--grid); background: var(--card); color: var(--text); cursor: pointer; }
+  button:hover { border-color: var(--c1); }
+  main { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; padding: 12px 28px 32px; }
+  .card { background: var(--card); border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(0,0,0,.06); min-width: 0; }
+  .card h2 { font-size: 14px; margin: 0 0 2px; }
+  .card .sub { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+  .kpi { grid-column: span 3; }
+  .kpi .label { color: var(--muted); font-size: 12px; }
+  .kpi .value { font-size: 26px; font-weight: 600; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .kpi .delta { font-size: 12px; margin-top: 2px; }
+  .w8 { grid-column: span 8; } .w4 { grid-column: span 4; } .w6 { grid-column: span 6; } .w12 { grid-column: span 12; }
+  @media (max-width: 1000px) { .kpi { grid-column: span 6; } .w8, .w4, .w6 { grid-column: span 12; } }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  svg text { fill: var(--muted); font-size: 11px; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 8px 10px; border-bottom: 1px solid var(--grid); }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  .bar-cell { display: inline-block; height: 6px; border-radius: 3px; vertical-align: middle; margin-left: 8px; }
+  .best { font-weight: 600; color: var(--ok); }
+  .runs { list-style: none; padding: 0; margin: 10px 0 0; max-height: 170px; overflow: auto; font-size: 12px; }
+  .runs li { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--grid); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  #tip { position: fixed; pointer-events: none; background: var(--text); color: var(--bg); padding: 5px 8px; border-radius: 6px; font-size: 12px; opacity: 0; transition: opacity .1s; white-space: nowrap; z-index: 10; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Usage Dashboard</h1>
+    <p>Dữ liệu ngẫu nhiên · 30 ngày gần nhất · <span id="generated"></span></p>
+  </div>
+  <button id="regen">↻ Tạo dữ liệu mới</button>
+</header>
+
+<main>
+  <div class="card kpi"><div class="label">Tổng chi phí (30 ngày)</div><div class="value" id="k-spend"></div><div class="delta" id="k-spend-d"></div></div>
+  <div class="card kpi"><div class="label">Tổng requests</div><div class="value" id="k-req"></div><div class="delta" id="k-req-d"></div></div>
+  <div class="card kpi"><div class="label">Dự báo cuối tháng / ngân sách</div><div class="value" id="k-proj"></div><div class="delta" id="k-proj-d"></div></div>
+  <div class="card kpi"><div class="label">CI pass rate (30 ngày)</div><div class="value" id="k-ci"></div><div class="delta" id="k-ci-d"></div></div>
+
+  <section class="card w8">
+    <h2>Chi phí theo model</h2><p class="sub">USD mỗi ngày, xếp chồng</p>
+    <div class="legend" id="lg-spend"></div><svg id="spend"></svg>
+  </section>
+  <section class="card w4">
+    <h2>Requests theo model</h2><p class="sub">Tổng 30 ngày</p>
+    <svg id="reqs"></svg>
+  </section>
+
+  <section class="card w6">
+    <h2>Dự báo ngân sách tháng này</h2><p class="sub">Chi phí luỹ kế thực tế và dự báo theo tốc độ 7 ngày gần nhất</p>
+    <div class="legend" id="lg-budget"></div><svg id="budget"></svg>
+  </section>
+  <section class="card w6">
+    <h2>Lưu lượng theo giờ</h2><p class="sub">Requests trung bình theo thứ × giờ (UTC+7)</p>
+    <svg id="heat"></svg>
+  </section>
+
+  <section class="card w6">
+    <h2>Sức khoẻ CI</h2><p class="sub">Số lần chạy mỗi ngày theo kết quả</p>
+    <div class="legend" id="lg-ci"></div><svg id="ci"></svg>
+    <ul class="runs" id="runs"></ul>
+  </section>
+  <section class="card w6">
+    <h2>So sánh model</h2><p class="sub">Giá trị tốt nhất mỗi cột được tô đậm</p>
+    <table id="cmp"></table>
+  </section>
+</main>
+<div id="tip"></div>
+
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+const MODELS = [
+  { name: 'claude-opus-5-5',   color: 'var(--c1)', price: 0.042, latency: 2400, share: 0.18 },
+  { name: 'claude-sonnet-5-5', color: 'var(--c2)', price: 0.014, latency: 1300, share: 0.42 },
+  { name: 'claude-haiku-5-5',  color: 'var(--c3)', price: 0.004, latency: 520,  share: 0.30 },
+  { name: 'claude-fable-5-1',  color: 'var(--c4)', price: 0.090, latency: 3600, share: 0.10 },
+];
+const DAYS = 30;
+const DOW = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+
+const rand = (a, b) => a + Math.random() * (b - a);
+const usd = v => '$' + v.toLocaleString('en-US', { maximumFractionDigits: v < 100 ? 2 : 0 });
+const num = v => v >= 1e6 ? (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? (v / 1e3).toFixed(1) + 'K' : String(Math.round(v));
+const pct = v => (v * 100).toFixed(1) + '%';
+const sum = a => a.reduce((s, x) => s + x, 0);
+const fmtDate = d => `${d.getDate()}/${d.getMonth() + 1}`;
+
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+
+const tip = document.getElementById('tip');
+function hover(node, text) {
+  node.addEventListener('mousemove', e => {
+    tip.textContent = text; tip.style.opacity = 1;
+    tip.style.left = e.clientX + 12 + 'px'; tip.style.top = e.clientY + 12 + 'px';
+  });
+  node.addEventListener('mouseleave', () => (tip.style.opacity = 0));
+}
+
+function legend(id, items) {
+  document.getElementById(id).innerHTML = items.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join('');
+}
+
+function setupSvg(id, w, h) {
+  const svg = document.getElementById(id);
+  svg.innerHTML = '';
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  return svg;
+}
+
+function yAxis(svg, max, x0, x1, y0, y1, fmt, ticks = 4) {
+  for (let i = 0; i <= ticks; i++) {
+    const v = (max / ticks) * i, y = y0 - (v / max) * (y0 - y1);
+    el('line', { x1: x0, x2: x1, y1: y, y2: y, stroke: 'var(--grid)' }, svg);
+    el('text', { x: x0 - 6, y: y + 4, 'text-anchor': 'end' }, svg).textContent = fmt(v);
+  }
+}
+
+// ---------- Sinh dữ liệu ngẫu nhiên ----------
+function generate() {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const dates = Array.from({ length: DAYS }, (_, i) => new Date(today - (DAYS - 1 - i) * 864e5));
+  const trend = rand(0.005, 0.02);
+
+  const models = MODELS.map(m => {
+    const req = dates.map((d, i) => {
+      const weekend = [0, 6].includes(d.getDay()) ? 0.55 : 1;
+      return Math.round(m.share * 9000 * weekend * (1 + trend * i) * rand(0.8, 1.2));
+    });
+    const spend = req.map(r => r * m.price * rand(0.9, 1.1));
+    return {
+      ...m, req, spend,
+      p50: m.latency * rand(0.85, 1.15),
+      p95: m.latency * rand(2.1, 2.8),
+      err: rand(0.002, 0.03),
+      quality: Math.min(0.99, 0.6 + m.price * 3 + rand(-0.04, 0.04)),
+    };
+  });
+
+  // Lưu lượng theo thứ × giờ: đỉnh giờ hành chính, thấp vào cuối tuần
+  const heat = DOW.map((_, d) => Array.from({ length: 24 }, (_, h) => {
+    const day = Math.exp(-((h - 10.5) ** 2) / 18) + 0.7 * Math.exp(-((h - 15) ** 2) / 10);
+    return Math.round((40 + 900 * day) * (d >= 5 ? 0.45 : 1) * rand(0.8, 1.2));
+  }));
+
+  const ci = dates.map(() => {
+    const total = Math.round(rand(18, 45));
+    const failed = Math.round(total * rand(0.02, 0.2));
+    const flaky = Math.round(total * rand(0, 0.08));
+    return { pass: total - failed - flaky, flaky, failed };
+  });
+
+  const branches = ['main', 'thi-website', 'feat/cart', 'fix/checkout', 'chore/deps'];
+  const runs = Array.from({ length: 14 }, (_, i) => {
+    const r = Math.random();
+    return {
+      id: 4820 - i, branch: branches[Math.floor(Math.random() * branches.length)],
+      status: r < 0.78 ? 'pass' : r < 0.88 ? 'flaky' : 'failed',
+      dur: Math.round(rand(140, 620)), ago: Math.round(i * rand(18, 50) + 3),
+    };
+  });
+
+  return { dates, models, heat, ci, runs, budget: Math.round(rand(9, 13)) * 1000 };
+}
+
+// ---------- KPI ----------
+function renderKpis(D) {
+  const daySpend = D.dates.map((_, i) => sum(D.models.map(m => m.spend[i])));
+  const dayReq = D.dates.map((_, i) => sum(D.models.map(m => m.req[i])));
+  const half = (a, from) => sum(a.slice(from, from + 15));
+  const delta = (a) => (half(a, 15) - half(a, 0)) / half(a, 0);
+  const show = (id, v, goodWhenUp) => {
+    const e = document.getElementById(id), up = v >= 0;
+    e.textContent = `${up ? '▲' : '▼'} ${pct(Math.abs(v))} so với 15 ngày trước`;
+    e.style.color = up === goodWhenUp ? 'var(--ok)' : 'var(--bad)';
+  };
+  document.getElementById('k-spend').textContent = usd(sum(daySpend));
+  show('k-spend-d', delta(daySpend), false);
+  document.getElementById('k-req').textContent = num(sum(dayReq));
+  show('k-req-d', delta(dayReq), true);
+
+  const p = projection(D);
+  const ratio = p.projected / D.budget;
+  document.getElementById('k-proj').textContent = `${usd(p.projected)} / ${usd(D.budget)}`;
+  const pd = document.getElementById('k-proj-d');
+  pd.textContent = ratio > 1 ? `Vượt ${pct(ratio - 1)} ngân sách` : `Dùng ${pct(ratio)} ngân sách`;
+  pd.style.color = ratio > 1 ? 'var(--bad)' : ratio > 0.9 ? 'var(--warn)' : 'var(--ok)';
+
+  const tot = D.ci.reduce((a, c) => ({ pass: a.pass + c.pass, all: a.all + c.pass + c.flaky + c.failed }), { pass: 0, all: 0 });
+  const rate = tot.pass / tot.all;
+  document.getElementById('k-ci').textContent = pct(rate);
+  const cd = document.getElementById('k-ci-d');
+  cd.textContent = `${tot.all} lần chạy`;
+  cd.style.color = rate > 0.9 ? 'var(--ok)' : rate > 0.8 ? 'var(--warn)' : 'var(--bad)';
+}
+
+// ---------- Chi phí theo model (stacked area) ----------
+function renderSpend(D) {
+  const W = 760, H = 260, L = 50, R = 10, T = 10, B = 26;
+  const svg = setupSvg('spend', W, H);
+  const totals = D.dates.map((_, i) => sum(D.models.map(m => m.spend[i])));
+  const max = Math.ceil(Math.max(...totals) / 500) * 500;
+  const x = i => L + (i / (DAYS - 1)) * (W - L - R);
+  const y = v => H - B - (v / max) * (H - B - T);
+  yAxis(svg, max, L, W - R, H - B, T, v => '$' + num(v));
+
+  const base = new Array(DAYS).fill(0);
+  D.models.forEach(m => {
+    const top = base.map((b, i) => b + m.spend[i]);
+    const pts = top.map((v, i) => `${x(i)},${y(v)}`).concat(base.map((v, i) => `${x(i)},${y(v)}`).reverse());
+    const poly = el('polygon', { points: pts.join(' '), fill: m.color, 'fill-opacity': 0.8, stroke: 'var(--card)', 'stroke-width': 1 }, svg);
+    hover(poly, `${m.name}: ${usd(sum(m.spend))} trong 30 ngày`);
+    top.forEach((v, i) => (base[i] = v));
+  });
+  D.dates.forEach((d, i) => {
+    if (i % 5 === 0 || i === DAYS - 1) el('text', { x: x(i), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = fmtDate(d);
+    const col = el('rect', { x: x(i) - 6, y: T, width: 12, height: H - B - T, fill: 'transparent' }, svg);
+    hover(col, `${fmtDate(d)} · ${usd(totals[i])} · ` + D.models.map(m => `${m.name.replace('claude-', '')} ${usd(m.spend[i])}`).join(' · '));
+  });
+  legend('lg-spend', D.models.map(m => [m.color, m.name]));
+}
+
+// ---------- Requests theo model (bar ngang) ----------
+function renderReqs(D) {
+  const W = 360, rowH = 52, H = D.models.length * rowH + 4;
+  const svg = setupSvg('reqs', W, H);
+  const totals = D.models.map(m => sum(m.req));
+  const max = Math.max(...totals), all = sum(totals);
+  D.models.map((m, i) => ({ m, t: totals[i] })).sort((a, b) => b.t - a.t).forEach(({ m, t }, i) => {
+    const y0 = i * rowH;
+    el('text', { x: 0, y: y0 + 14, style: 'fill:var(--text)' }, svg).textContent = m.name;
+    el('rect', { x: 0, y: y0 + 22, width: W - 70, height: 14, rx: 3, fill: 'var(--grid)' }, svg);
+    const bar = el('rect', { x: 0, y: y0 + 22, width: ((W - 70) * t) / max, height: 14, rx: 3, fill: m.color }, svg);
+    hover(bar, `${m.name}: ${t.toLocaleString('en-US')} requests (${pct(t / all)})`);
+    el('text', { x: W, y: y0 + 33, 'text-anchor': 'end', style: 'fill:var(--text)' }, svg).textContent = num(t);
+  });
+}
+
+// ---------- Dự báo ngân sách ----------
+function projection(D) {
+  const today = D.dates[DAYS - 1];
+  const dim = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const day = Math.min(today.getDate(), DAYS);
+  const daily = D.dates.map((_, i) => sum(D.models.map(m => m.spend[i])));
+  const mtd = daily.slice(DAYS - day); // các ngày thuộc tháng hiện tại
+  const cum = []; mtd.reduce((s, v, i) => (cum[i] = s + v), 0);
+  const rate = sum(daily.slice(-7)) / 7;
+  const spent = cum[cum.length - 1] || 0;
+  return { dim, day, cum, rate, spent, projected: spent + rate * (dim - day) };
+}
+
+function renderBudget(D) {
+  const W = 560, H = 240, L = 54, R = 14, T = 12, B = 26;
+  const svg = setupSvg('budget', W, H);
+  const p = projection(D);
+  const max = Math.ceil(Math.max(D.budget, p.projected) * 1.1 / 1000) * 1000;
+  const x = d => L + ((d - 1) / (p.dim - 1)) * (W - L - R);
+  const y = v => H - B - (v / max) * (H - B - T);
+  yAxis(svg, max, L, W - R, H - B, T, v => '$' + num(v));
+
+  el('line', { x1: L, x2: W - R, y1: y(D.budget), y2: y(D.budget), stroke: 'var(--bad)', 'stroke-dasharray': '6 4', 'stroke-width': 1.5 }, svg);
+  el('text', { x: W - R, y: y(D.budget) - 6, 'text-anchor': 'end', style: 'fill:var(--bad)' }, svg).textContent = 'Ngân sách ' + usd(D.budget);
+
+  el('polyline', { points: p.cum.map((v, i) => `${x(i + 1)},${y(v)}`).join(' '), fill: 'none', stroke: 'var(--c1)', 'stroke-width': 2.5 }, svg);
+  el('line', { x1: x(p.day), y1: y(p.spent), x2: x(p.dim), y2: y(p.projected), stroke: 'var(--c1)', 'stroke-width': 2, 'stroke-dasharray': '4 4' }, svg);
+  const now = el('circle', { cx: x(p.day), cy: y(p.spent), r: 5, fill: 'var(--c1)' }, svg);
+  hover(now, `Ngày ${p.day}: đã chi ${usd(p.spent)} · tốc độ ${usd(p.rate)}/ngày`);
+  const end = el('circle', { cx: x(p.dim), cy: y(p.projected), r: 5, fill: 'var(--card)', stroke: 'var(--c1)', 'stroke-width': 2 }, svg);
+  hover(end, `Dự báo ngày ${p.dim}: ${usd(p.projected)}`);
+
+  [1, 8, 15, 22, p.dim].forEach(d => el('text', { x: x(d), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = d);
+  legend('lg-budget', [['var(--c1)', 'Luỹ kế thực tế'], ['var(--c1)', 'Dự báo (nét đứt)'], ['var(--bad)', 'Ngân sách']]);
+}
+
+// ---------- Heatmap theo giờ ----------
+function renderHeat(D) {
+  const W = 560, L = 28, T = 4, cw = (W - L) / 24, ch = 24, H = T + ch * 7 + 22;
+  const svg = setupSvg('heat', W, H);
+  const max = Math.max(...D.heat.flat());
+  D.heat.forEach((row, d) => {
+    el('text', { x: L - 6, y: T + d * ch + ch / 2 + 4, 'text-anchor': 'end' }, svg).textContent = DOW[d];
+    row.forEach((v, h) => {
+      const c = el('rect', { x: L + h * cw + 1, y: T + d * ch + 1, width: cw - 2, height: ch - 2, rx: 3, fill: 'var(--c1)', 'fill-opacity': 0.08 + 0.92 * (v / max) }, svg);
+      hover(c, `${DOW[d]} ${String(h).padStart(2, '0')}:00 · ${v.toLocaleString('en-US')} requests/giờ`);
+    });
+  });
+  for (let h = 0; h < 24; h += 3) el('text', { x: L + h * cw + cw / 2, y: H - 6, 'text-anchor': 'middle' }, svg).textContent = h + 'h';
+}
+
+// ---------- CI ----------
+function renderCi(D) {
+  const W = 560, H = 190, L = 34, R = 6, T = 8, B = 24;
+  const svg = setupSvg('ci', W, H);
+  const max = Math.ceil(Math.max(...D.ci.map(c => c.pass + c.flaky + c.failed)) / 10) * 10;
+  const bw = (W - L - R) / DAYS;
+  const y = v => (v / max) * (H - B - T);
+  yAxis(svg, max, L, W - R, H - B, T, v => Math.round(v));
+  const parts = [['pass', 'var(--ok)'], ['flaky', 'var(--warn)'], ['failed', 'var(--bad)']];
+  D.ci.forEach((c, i) => {
+    let acc = 0;
+    const g = el('g', {}, svg);
+    parts.forEach(([k, col]) => {
+      el('rect', { x: L + i * bw + 2, y: H - B - y(acc + c[k]), width: bw - 4, height: y(c[k]), fill: col }, g);
+      acc += c[k];
+    });
+    hover(g, `${fmtDate(D.dates[i])} · pass ${c.pass} · flaky ${c.flaky} · failed ${c.failed}`);
+    if (i % 5 === 0) el('text', { x: L + i * bw + bw / 2, y: H - 8, 'text-anchor': 'middle' }, svg).textContent = fmtDate(D.dates[i]);
+  });
+  legend('lg-ci', [['var(--ok)', 'Pass'], ['var(--warn)', 'Flaky'], ['var(--bad)', 'Failed']]);
+
+  const color = { pass: 'var(--ok)', flaky: 'var(--warn)', failed: 'var(--bad)' };
+  document.getElementById('runs').innerHTML = D.runs.map(r =>
+    `<li><span><span class="dot" style="background:${color[r.status]}"></span>#${r.id} · ${r.branch}</span>` +
+    `<span style="color:var(--muted)">${Math.floor(r.dur / 60)}m${r.dur % 60}s · ${r.ago < 60 ? r.ago + ' phút' : Math.round(r.ago / 60) + ' giờ'} trước</span></li>`).join('');
+}
+
+// ---------- So sánh model ----------
+function renderCompare(D) {
+  const rows = D.models.map(m => {
+    const req = sum(m.req), spend = sum(m.spend);
+    return { name: m.name, color: m.color, req, spend, per1k: (spend / req) * 1000, p50: m.p50, p95: m.p95, err: m.err, quality: m.quality };
+  });
+  const cols = [
+    ['Requests', 'req', num, 'max'],
+    ['Chi phí', 'spend', usd, null],
+    ['$/1K req', 'per1k', usd, 'min'],
+    ['p50 (ms)', 'p50', v => Math.round(v), 'min'],
+    ['p95 (ms)', 'p95', v => Math.round(v), 'min'],
+    ['Lỗi', 'err', pct, 'min'],
+    ['Chất lượng', 'quality', pct, 'max'],
+  ];
+  const best = {};
+  cols.forEach(([, k, , dir]) => { if (dir) best[k] = (dir === 'min' ? Math.min : Math.max)(...rows.map(r => r[k])); });
+  const maxSpend = Math.max(...rows.map(r => r.spend));
+  document.getElementById('cmp').innerHTML =
+    `<thead><tr><th>Model</th>${cols.map(c => `<th>${c[0]}</th>`).join('')}</tr></thead><tbody>` +
+    rows.map(r => `<tr><td><span class="dot" style="background:${r.color}"></span>${r.name.replace('claude-', '')}</td>` +
+      cols.map(([, k, f]) => k === 'spend'
+        ? `<td>${f(r[k])}<span class="bar-cell" style="width:${(40 * r[k]) / maxSpend}px;background:${r.color}"></span></td>`
+        : `<td class="${best[k] === r[k] ? 'best' : ''}">${f(r[k])}</td>`).join('') + '</tr>').join('') + '</tbody>';
+}
+
+function render() {
+  const D = generate();
+  document.getElementById('generated').textContent = 'tạo lúc ' + new Date().toLocaleTimeString('vi-VN');
+  renderKpis(D); renderSpend(D); renderReqs(D); renderBudget(D); renderHeat(D); renderCi(D); renderCompare(D);
+}
+
+document.getElementById('regen').addEventListener('click', render);
+render();
+</script>
+</body>
+</html>

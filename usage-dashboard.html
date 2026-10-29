@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Usage Dashboard</title>
+<style>
+  :root { --bg:#0f1117; --card:#181b24; --line:#2a2f3d; --text:#e6e8ef; --muted:#8b91a3;
+          --c1:#5b8def; --c2:#2bb3a3; --c3:#e8a33d; --c4:#c46bd9; --ok:#3fb950; --bad:#f85149; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--text); }
+  header { padding:20px 28px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); }
+  header h1 { margin:0; font-size:20px; }
+  header small { color:var(--muted); }
+  button { background:var(--card); color:var(--text); border:1px solid var(--line); padding:6px 12px; border-radius:6px; cursor:pointer; }
+  main { padding:20px 28px; display:grid; gap:16px; grid-template-columns:repeat(12,1fr); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .card h2 { margin:0 0 12px; font-size:14px; color:var(--muted); font-weight:600; }
+  .kpi { grid-column:span 3; }
+  .kpi .v { font-size:26px; font-weight:700; }
+  .kpi .s { color:var(--muted); font-size:12px; }
+  .w6 { grid-column:span 6; } .w12 { grid-column:span 12; } .w4 { grid-column:span 4; } .w8 { grid-column:span 8; }
+  @media (max-width:900px){ .kpi,.w4,.w6,.w8 { grid-column:span 12; } }
+  svg { width:100%; height:auto; display:block; }
+  svg text { fill:var(--muted); font-size:11px; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; font-size:12px; color:var(--muted); }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { padding:8px 6px; text-align:right; border-bottom:1px solid var(--line); }
+  th:first-child,td:first-child { text-align:left; }
+  th { color:var(--muted); font-weight:600; }
+  .runs { display:flex; gap:3px; flex-wrap:wrap; }
+  .runs span { width:14px; height:22px; border-radius:3px; }
+  .tip { position:fixed; pointer-events:none; background:#000c; padding:5px 8px; border-radius:5px; font-size:12px; display:none; }
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Usage Dashboard</h1><small>Dữ liệu ngẫu nhiên (demo) · 30 ngày gần nhất</small></div>
+  <button id="regen">Tạo dữ liệu mới</button>
+</header>
+<main id="app"></main>
+<div class="tip" id="tip"></div>
+
+<script>
+const MODELS = [
+  { name: 'claude-opus-5-5',   color: 'var(--c1)', price: 0.060 },
+  { name: 'claude-sonnet-5-5', color: 'var(--c2)', price: 0.018 },
+  { name: 'claude-haiku-5-5',  color: 'var(--c3)', price: 0.004 },
+  { name: 'claude-fable-5-1',  color: 'var(--c4)', price: 0.090 },
+];
+const DAYS = 30, MONTH_DAYS = 31, BUDGET = 9000;
+const NS = 'http://www.w3.org/2000/svg';
+const tip = document.getElementById('tip');
+const rnd = (a, b) => a + Math.random() * (b - a);
+const fmt$ = v => '$' + v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+const fmtN = v => v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+function genData() {
+  const daily = MODELS.map(m => {
+    const base = m.price > 0.05 ? rnd(400, 900) : rnd(1500, 4000);
+    return Array.from({ length: DAYS }, (_, d) => {
+      const weekend = [5, 6].includes(d % 7) ? 0.55 : 1;
+      const req = Math.round(base * weekend * rnd(0.8, 1.2) * (1 + d / 90));
+      return { req, spend: req * m.price * rnd(0.85, 1.15) };
+    });
+  });
+  const hourly = Array.from({ length: 24 }, (_, h) =>
+    Math.round((300 + 1400 * Math.exp(-((h - 14) ** 2) / 18)) * rnd(0.85, 1.15)));
+  const ci = Array.from({ length: 60 }, () => {
+    const r = Math.random();
+    return { status: r < 0.84 ? 'pass' : r < 0.95 ? 'fail' : 'flaky', mins: rnd(4, 14) };
+  });
+  const compare = MODELS.map(m => ({
+    latency: m.price > 0.05 ? rnd(2.5, 4.5) : m.price > 0.01 ? rnd(1.2, 2.2) : rnd(0.4, 0.9),
+    errRate: rnd(0.2, 1.8),
+    quality: m.price > 0.05 ? rnd(88, 95) : m.price > 0.01 ? rnd(80, 88) : rnd(68, 78),
+  }));
+  return { daily, hourly, ci, compare };
+}
+
+const el = (tag, attrs = {}, parent) => {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  parent && parent.appendChild(n);
+  return n;
+};
+function hover(node, text) {
+  node.addEventListener('mousemove', e => {
+    tip.style.display = 'block'; tip.textContent = text;
+    tip.style.left = e.clientX + 12 + 'px'; tip.style.top = e.clientY + 12 + 'px';
+  });
+  node.addEventListener('mouseleave', () => (tip.style.display = 'none'));
+}
+function card(cls, title) {
+  const c = document.createElement('section');
+  c.className = 'card ' + cls;
+  if (title) c.innerHTML = `<h2>${title}</h2>`;
+  document.getElementById('app').appendChild(c);
+  return c;
+}
+function legend(parent, items) {
+  const l = document.createElement('div'); l.className = 'legend';
+  l.innerHTML = items.map(([n, c]) => `<span><i style="background:${c}"></i>${n}</span>`).join('');
+  parent.appendChild(l);
+}
+function axisY(svg, max, x0, x1, y0, y1, f) {
+  for (let i = 0; i <= 4; i++) {
+    const y = y1 - (y1 - y0) * i / 4;
+    el('line', { x1: x0, x2: x1, y1: y, y2: y, stroke: '#2a2f3d' }, svg);
+    el('text', { x: x0 - 6, y: y + 4, 'text-anchor': 'end' }, svg).textContent = f(max * i / 4);
+  }
+}
+
+// Stacked bars: daily value per model
+function stackedBars(parent, series, key, f) {
+  const W = 600, H = 240, L = 50, B = 20, T = 10;
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}` }, parent);
+  const totals = series[0].map((_, d) => series.reduce((s, m) => s + m[d][key], 0));
+  const max = Math.max(...totals) * 1.1;
+  axisY(svg, max, L, W, T, H - B, f);
+  const bw = (W - L) / DAYS;
+  for (let d = 0; d < DAYS; d++) {
+    let acc = 0;
+    series.forEach((m, i) => {
+      const h = (m[d][key] / max) * (H - B - T);
+      const r = el('rect', { x: L + d * bw + 1, y: H - B - acc - h, width: bw - 2, height: h, fill: MODELS[i].color }, svg);
+      hover(r, `Ngày ${d + 1} · ${MODELS[i].name}: ${f(m[d][key])}`);
+      acc += h;
+    });
+    if (d % 5 === 0) el('text', { x: L + d * bw + bw / 2, y: H - 5, 'text-anchor': 'middle' }, svg).textContent = 'N' + (d + 1);
+  }
+  legend(parent, MODELS.map(m => [m.name, m.color]));
+}
+
+function render() {
+  document.getElementById('app').innerHTML = '';
+  const { daily, hourly, ci, compare } = genData();
+  const spendByDay = daily[0].map((_, d) => daily.reduce((s, m) => s + m[d].spend, 0));
+  const totalSpend = spendByDay.reduce((a, b) => a + b, 0);
+  const totalReq = daily.flat().reduce((s, x) => s + x.req, 0);
+  // Projection: linear trend from last 7 days extrapolated to month end
+  const last7 = spendByDay.slice(-7).reduce((a, b) => a + b, 0) / 7;
+  const projected = totalSpend + last7 * (MONTH_DAYS - DAYS);
+  const passRate = ci.filter(r => r.status === 'pass').length / ci.length * 100;
+
+  // KPIs
+  [
+    ['Tổng chi phí', fmt$(totalSpend), `${DAYS} ngày`],
+    ['Tổng request', fmtN(totalReq), `~${fmtN(totalReq / DAYS)}/ngày`],
+    ['Dự báo cuối tháng', fmt$(projected), `${(projected / BUDGET * 100).toFixed(0)}% ngân sách ${fmt$(BUDGET)}`],
+    ['CI pass rate', passRate.toFixed(1) + '%', `${ci.length} lần chạy gần nhất`],
+  ].forEach(([t, v, s]) => {
+    const c = card('kpi', t);
+    c.insertAdjacentHTML('beforeend', `<div class="v">${v}</div><div class="s">${s}</div>`);
+    if (t === 'Dự báo cuối tháng') c.querySelector('.v').style.color = projected > BUDGET ? 'var(--bad)' : 'var(--ok)';
+  });
+
+  stackedBars(card('w6', 'Chi phí theo ngày, theo model'), daily, 'spend', v => fmt$(v));
+  stackedBars(card('w6', 'Request theo ngày, theo model'), daily, 'req', v => fmtN(v));
+
+  // Budget projection: cumulative actual + projected line vs budget
+  {
+    const c = card('w8', 'Dự báo ngân sách (lũy kế)');
+    const W = 700, H = 240, L = 55, B = 20, T = 10;
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}` }, c);
+    const cum = []; spendByDay.reduce((a, v, i) => (cum[i] = a + v), 0);
+    const max = Math.max(BUDGET, projected) * 1.1;
+    axisY(svg, max, L, W, T, H - B, fmt$);
+    const x = d => L + (W - L) * d / (MONTH_DAYS - 1), y = v => H - B - (H - B - T) * v / max;
+    el('path', { d: cum.map((v, i) => `${i ? 'L' : 'M'}${x(i)},${y(v)}`).join(''), fill: 'none', stroke: 'var(--c1)', 'stroke-width': 2.5 }, svg);
+    el('line', { x1: x(DAYS - 1), y1: y(cum[DAYS - 1]), x2: x(MONTH_DAYS - 1), y2: y(projected), stroke: 'var(--c1)', 'stroke-width': 2, 'stroke-dasharray': '5 4' }, svg);
+    el('line', { x1: L, x2: W, y1: y(BUDGET), y2: y(BUDGET), stroke: 'var(--bad)', 'stroke-dasharray': '3 3' }, svg);
+    el('text', { x: W - 4, y: y(BUDGET) - 5, 'text-anchor': 'end' }, svg).textContent = 'Ngân sách ' + fmt$(BUDGET);
+    cum.forEach((v, i) => hover(el('circle', { cx: x(i), cy: y(v), r: 4, fill: 'transparent' }, svg), `Ngày ${i + 1}: ${fmt$(v)}`));
+    legend(c, [['Thực tế', 'var(--c1)'], ['Dự báo (TB 7 ngày)', 'var(--c1)'], ['Ngân sách', 'var(--bad)']]);
+  }
+
+  // Spend share donut
+  {
+    const c = card('w4', 'Tỷ trọng chi phí');
+    const svg = el('svg', { viewBox: '0 0 200 200' }, c);
+    const per = daily.map(m => m.reduce((s, x) => s + x.spend, 0));
+    let a0 = -Math.PI / 2;
+    per.forEach((v, i) => {
+      const a1 = a0 + (v / totalSpend) * Math.PI * 2, R = 85, r = 52;
+      const p = (a, rr) => `${100 + rr * Math.cos(a)},${100 + rr * Math.sin(a)}`;
+      const big = a1 - a0 > Math.PI ? 1 : 0;
+      const path = el('path', { d: `M${p(a0, R)}A${R},${R} 0 ${big} 1 ${p(a1, R)}L${p(a1, r)}A${r},${r} 0 ${big} 0 ${p(a0, r)}Z`, fill: MODELS[i].color, stroke: 'var(--card)', 'stroke-width': 2 }, svg);
+      hover(path, `${MODELS[i].name}: ${fmt$(v)} (${(v / totalSpend * 100).toFixed(1)}%)`);
+      a0 = a1;
+    });
+    const t = el('text', { x: 100, y: 105, 'text-anchor': 'middle', style: 'font-size:16px;fill:var(--text);font-weight:700' }, svg);
+    t.textContent = fmt$(totalSpend);
+    legend(c, MODELS.map(m => [m.name, m.color]));
+  }
+
+  // Traffic by hour
+  {
+    const c = card('w6', 'Lưu lượng theo giờ (request/giờ trung bình)');
+    const W = 600, H = 220, L = 45, B = 20, T = 10;
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}` }, c);
+    const max = Math.max(...hourly) * 1.1, bw = (W - L) / 24;
+    axisY(svg, max, L, W, T, H - B, fmtN);
+    hourly.forEach((v, h) => {
+      const hh = (v / max) * (H - B - T);
+      const op = 0.35 + 0.65 * v / max;
+      hover(el('rect', { x: L + h * bw + 2, y: H - B - hh, width: bw - 4, height: hh, fill: 'var(--c2)', 'fill-opacity': op, rx: 2 }, svg), `${h}:00 · ${fmtN(v)} req`);
+      if (h % 3 === 0) el('text', { x: L + h * bw + bw / 2, y: H - 5, 'text-anchor': 'middle' }, svg).textContent = h + 'h';
+    });
+  }
+
+  // CI health
+  {
+    const c = card('w6', 'Sức khỏe CI (60 lần chạy gần nhất)');
+    const colors = { pass: 'var(--ok)', fail: 'var(--bad)', flaky: 'var(--c3)' };
+    const runs = document.createElement('div'); runs.className = 'runs';
+    ci.forEach((r, i) => {
+      const s = document.createElement('span'); s.style.background = colors[r.status];
+      s.addEventListener('mousemove', e => { tip.style.display = 'block'; tip.textContent = `Run #${i + 1}: ${r.status} · ${r.mins.toFixed(1)} phút`; tip.style.left = e.clientX + 12 + 'px'; tip.style.top = e.clientY + 12 + 'px'; });
+      s.addEventListener('mouseleave', () => (tip.style.display = 'none'));
+      runs.appendChild(s);
+    });
+    c.appendChild(runs);
+    const cnt = k => ci.filter(r => r.status === k).length;
+    const avg = ci.reduce((s, r) => s + r.mins, 0) / ci.length;
+    c.insertAdjacentHTML('beforeend', `<table style="margin-top:14px"><tr><th>Pass</th><th>Fail</th><th>Flaky</th><th>Thời gian TB</th></tr>
+      <tr><td style="text-align:right">${cnt('pass')}</td><td>${cnt('fail')}</td><td>${cnt('flaky')}</td><td>${avg.toFixed(1)} phút</td></tr></table>`);
+    legend(c, [['pass', 'var(--ok)'], ['fail', 'var(--bad)'], ['flaky', 'var(--c3)']]);
+  }
+
+  // Model comparison
+  {
+    const c = card('w12', 'So sánh model');
+    const rows = MODELS.map((m, i) => {
+      const req = daily[i].reduce((s, x) => s + x.req, 0), spend = daily[i].reduce((s, x) => s + x.spend, 0);
+      return { m, req, spend, cpr: spend / req * 1000, ...compare[i] };
+    });
+    const bar = (v, max, color) => `<div style="display:flex;align-items:center;gap:8px;justify-content:flex-end">${v}<div style="width:80px;height:6px;background:#2a2f3d;border-radius:3px"><div style="width:${Math.min(100, parseFloat(String(v).replace(/[^\d.]/g, '')) / max * 100)}%;height:100%;background:${color};border-radius:3px"></div></div></div>`;
+    const mx = k => Math.max(...rows.map(r => r[k]));
+    c.insertAdjacentHTML('beforeend', `<table><tr><th>Model</th><th>Request</th><th>Chi phí</th><th>$ / 1K req</th><th>Latency p50</th><th>Lỗi</th><th>Điểm chất lượng</th></tr>
+      ${rows.map(r => `<tr><td><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${r.m.color};margin-right:6px"></i>${r.m.name}</td>
+        <td>${fmtN(r.req)}</td><td>${fmt$(r.spend)}</td><td>$${r.cpr.toFixed(2)}</td>
+        <td>${bar(r.latency.toFixed(2) + 's', mx('latency'), 'var(--c3)')}</td>
+        <td>${bar(r.errRate.toFixed(2) + '%', mx('errRate'), 'var(--bad)')}</td>
+        <td>${bar(r.quality.toFixed(1), 100, 'var(--ok)')}</td></tr>`).join('')}</table>`);
+  }
+}
+
+document.getElementById('regen').onclick = render;
+render();
+</script>
+</body>
+</html>

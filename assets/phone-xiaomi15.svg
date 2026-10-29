@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 400" fill="none">
+  <defs>
+    <linearGradient id="xmBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#262626"/>
+      <stop offset="100%" stop-color="#0A0A0A"/>
+    </linearGradient>
+    <linearGradient id="leicaRing" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E5E7EB"/>
+      <stop offset="50%" stop-color="#9CA3AF"/>
+      <stop offset="100%" stop-color="#4B5563"/>
+    </linearGradient>
+  </defs>
+  <!-- Xiaomi 15 Ultra Body with Huge Circular Camera Dial -->
+  <rect x="75" y="35" width="170" height="330" rx="24" fill="url(#xmBody)" stroke="#404040" stroke-width="2"/>
+  <!-- Big Leica Disc -->
+  <circle cx="160" cy="125" r="62" fill="#141414" stroke="url(#leicaRing)" stroke-width="3"/>
+  <!-- Leica Red Dot Accent -->
+  <circle cx="160" cy="80" r="5" fill="#EF4444"/>
+  <!-- 4 Big Lenses inside Disc -->
+  <circle cx="140" cy="115" r="14" fill="#030712" stroke="#374151" stroke-width="2"/>
+  <circle cx="180" cy="115" r="14" fill="#030712" stroke="#374151" stroke-width="2"/>
+  <circle cx="140" cy="148" r="14" fill="#030712" stroke="#374151" stroke-width="2"/>
+  <circle cx="180" cy="148" r="14" fill="#030712" stroke="#374151" stroke-width="2"/>
+  <!-- Text Brand -->
+  <text x="160" y="320" font-family="sans-serif" font-size="12" font-weight="700" fill="#737373" text-anchor="middle" letter-spacing="3">XIAOMI</text>
+</svg>
